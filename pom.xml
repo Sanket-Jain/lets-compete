@@ -29,11 +29,10 @@
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
-    <!-- JSP Support - must use war packaging -->
+    <!-- JSP Support - scope must NOT be provided for spring-boot:run to work -->
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-jasper</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <!-- JSTL -->
