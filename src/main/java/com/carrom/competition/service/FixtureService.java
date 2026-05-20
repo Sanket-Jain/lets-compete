@@ -155,6 +155,10 @@ public class FixtureService {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    public void deleteById(Long id) {
+        fixtureRepository.deleteById(id);
+    }
+
     // ─── Record match result ──────────────────────────────────────────────────────
 
     public FixtureDTO recordResult(Long fixtureId, MatchResultDTO result) {

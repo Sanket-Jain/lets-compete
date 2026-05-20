@@ -62,6 +62,15 @@ public class FixtureController {
     }
 
     /**
+     * Delete a fixture.
+     */
+    @DeleteMapping("/{fixtureId}")
+    public ResponseEntity<Void> deleteFixture(@PathVariable Long fixtureId) {
+        fixtureService.deleteById(fixtureId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Record the result of a match.
      */
     @PutMapping("/{fixtureId}/result")
