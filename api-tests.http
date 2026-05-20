@@ -1,0 +1,185 @@
+### Carrom Competition API Tests
+### Use with VS Code REST Client extension
+
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+# ──────────────────────────────────────────
+# PLAYERS
+# ──────────────────────────────────────────
+
+### Create Player 1
+POST {{baseUrl}}/api/players
+Content-Type: {{contentType}}
+
+{
+  "name": "Rahul Sharma",
+  "skillLevel": "PRO",
+  "achievements": "State champion 2023, District runner-up 2022"
+}
+
+### Create Player 2
+POST {{baseUrl}}/api/players
+Content-Type: {{contentType}}
+
+{
+  "name": "Priya Mehta",
+  "skillLevel": "INTERMEDIATE",
+  "achievements": "Club champion 2024"
+}
+
+### Create Player 3
+POST {{baseUrl}}/api/players
+Content-Type: {{contentType}}
+
+{
+  "name": "Arun Kumar",
+  "skillLevel": "BEGINNER",
+  "achievements": ""
+}
+
+### Create Player 4
+POST {{baseUrl}}/api/players
+Content-Type: {{contentType}}
+
+{
+  "name": "Sunita Patel",
+  "skillLevel": "PRO",
+  "achievements": "National finalist 2022"
+}
+
+### Get All Players (sorted by score)
+GET {{baseUrl}}/api/players
+
+### Get Player by ID
+GET {{baseUrl}}/api/players/1
+
+### Update Player
+PUT {{baseUrl}}/api/players/1
+Content-Type: {{contentType}}
+
+{
+  "name": "Rahul Sharma",
+  "skillLevel": "PRO",
+  "achievements": "State champion 2023, District runner-up 2022, National finalist 2024"
+}
+
+# ──────────────────────────────────────────
+# TEAMS (for DOUBLES tournaments)
+# ──────────────────────────────────────────
+
+### Create Team 1
+POST {{baseUrl}}/api/teams
+Content-Type: {{contentType}}
+
+{
+  "name": "Thunder Duo",
+  "player1Id": 1,
+  "player2Id": 2
+}
+
+### Create Team 2
+POST {{baseUrl}}/api/teams
+Content-Type: {{contentType}}
+
+{
+  "name": "Storm Pair",
+  "player1Id": 3,
+  "player2Id": 4
+}
+
+### Get All Teams
+GET {{baseUrl}}/api/teams
+
+# ──────────────────────────────────────────
+# TOURNAMENTS
+# ──────────────────────────────────────────
+
+### Create Singles Tournament
+POST {{baseUrl}}/api/tournaments
+Content-Type: {{contentType}}
+
+{
+  "name": "Club Singles Championship 2025",
+  "competitionType": "SINGLES",
+  "description": "Annual singles carrom championship",
+  "totalLevels": 3
+}
+
+### Create Doubles Tournament
+POST {{baseUrl}}/api/tournaments
+Content-Type: {{contentType}}
+
+{
+  "name": "Club Doubles Championship 2025",
+  "competitionType": "DOUBLES",
+  "description": "Annual doubles carrom championship",
+  "totalLevels": 2
+}
+
+### Get All Tournaments
+GET {{baseUrl}}/api/tournaments
+
+### Get Active Tournaments
+GET {{baseUrl}}/api/tournaments/active
+
+# ──────────────────────────────────────────
+# FIXTURES - SINGLES (Tournament ID = 1)
+# ──────────────────────────────────────────
+
+### Generate Level 1 Fixtures (Random) - Singles
+### Body = array of player IDs
+POST {{baseUrl}}/api/fixtures/tournament/1/generate-level1
+Content-Type: {{contentType}}
+
+[1, 2, 3, 4]
+
+### Get All Fixtures for Tournament
+GET {{baseUrl}}/api/fixtures/tournament/1
+
+### Get Level 1 Fixtures
+GET {{baseUrl}}/api/fixtures/tournament/1/level/1
+
+### Record Result - Match 1 (player1 wins)
+PUT {{baseUrl}}/api/fixtures/1/result
+Content-Type: {{contentType}}
+
+{
+  "scoreParticipant1": 25,
+  "scoreParticipant2": 18
+}
+
+### Record Result - Match 2 (player2 wins)
+PUT {{baseUrl}}/api/fixtures/2/result
+Content-Type: {{contentType}}
+
+{
+  "scoreParticipant1": 12,
+  "scoreParticipant2": 25
+}
+
+### Advance to Level 2 (score-seeded)
+POST {{baseUrl}}/api/fixtures/tournament/1/advance-level
+
+### Get Level 2 Fixtures
+GET {{baseUrl}}/api/fixtures/tournament/1/level/2
+
+# ──────────────────────────────────────────
+# FIXTURES - DOUBLES (Tournament ID = 2)
+# ──────────────────────────────────────────
+
+### Generate Level 1 Fixtures - Doubles
+### Body = array of team IDs
+POST {{baseUrl}}/api/fixtures/tournament/2/generate-level1
+Content-Type: {{contentType}}
+
+[1, 2]
+
+### Record Doubles Result
+PUT {{baseUrl}}/api/fixtures/3/result
+Content-Type: {{contentType}}
+
+{
+  "scoreParticipant1": 29,
+  "scoreParticipant2": 22
+}
