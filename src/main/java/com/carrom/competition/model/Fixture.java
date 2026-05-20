@@ -68,6 +68,13 @@ public class Fixture {
     @Column(name = "status", nullable = false)
     private MatchStatus status = MatchStatus.SCHEDULED;
 
+    /**
+     * True when this fixture is a bye — one participant advances automatically
+     * with no opponent. Only ever created in Level 1 to pad to a power-of-2 bracket.
+     */
+    @Column(name = "is_bye", nullable = false)
+    private Boolean isBye = false;
+
     @Column(name = "scheduled_at")
     private LocalDateTime scheduledAt;
 
@@ -90,6 +97,7 @@ public class Fixture {
         if (status == null) status = MatchStatus.SCHEDULED;
         if (scoreParticipant1 == null) scoreParticipant1 = 0;
         if (scoreParticipant2 == null) scoreParticipant2 = 0;
+        if (isBye == null) isBye = false;
     }
 
     @PreUpdate

@@ -15,6 +15,7 @@ public class FixtureDTO {
     private CompetitionType competitionType;
     private Integer matchNumber;
     private MatchStatus status;
+    private Boolean isBye;
 
     // Singles
     private PlayerDTO player1;
