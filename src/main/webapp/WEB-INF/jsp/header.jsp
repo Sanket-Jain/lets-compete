@@ -241,6 +241,7 @@
   <div class="nav-links">
     <a href="/"            id="nav-home">Home</a>
     <a href="/players"     id="nav-players">Players</a>
+    <a href="/teams"       id="nav-teams">Teams</a>
     <a href="/tournaments" id="nav-tournaments">Tournaments</a>
     <a href="/fixtures"    id="nav-fixtures">Fixtures</a>
     <a href="/results"     id="nav-results">Results</a>
@@ -253,7 +254,7 @@
   // Highlight active nav link
   (function(){
     const path = window.location.pathname;
-    const map = { '/': 'nav-home', '/players': 'nav-players', '/tournaments': 'nav-tournaments', '/fixtures': 'nav-fixtures', '/results': 'nav-results' };
+    const map = { '/': 'nav-home', '/players': 'nav-players', '/teams': 'nav-teams', '/tournaments': 'nav-tournaments', '/fixtures': 'nav-fixtures', '/results': 'nav-results' };
     const id = map[path];
     if (id) document.getElementById(id)?.classList.add('active');
   })();
