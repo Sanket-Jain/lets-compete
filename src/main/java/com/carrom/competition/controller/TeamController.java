@@ -25,6 +25,11 @@ public class TeamController {
         return ResponseEntity.ok(teamService.findAll());
     }
 
+    @GetMapping("/tournament/{tournamentId}")
+    public ResponseEntity<List<TeamDTO>> getByTournament(@PathVariable Long tournamentId) {
+        return ResponseEntity.ok(teamService.findByTournament(tournamentId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<TeamDTO> getTeam(@PathVariable Long id) {
         return ResponseEntity.ok(teamService.findById(id));

@@ -1,5 +1,6 @@
 package com.carrom.competition.model;
 
+import com.carrom.competition.enums.GenderType;
 import com.carrom.competition.enums.SkillLevel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -30,6 +31,11 @@ public class Player {
     @Column(name = "skill_level", nullable = false)
     private SkillLevel skillLevel;
 
+    @NotNull(message = "Gender is required")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", nullable = false)
+    private GenderType gender = GenderType.MALE;
+
     @Column(columnDefinition = "TEXT")
     private String achievements;
 
@@ -55,10 +61,9 @@ public class Player {
         if (totalScore == null) totalScore = 0;
         if (matchesPlayed == null) matchesPlayed = 0;
         if (matchesWon == null) matchesWon = 0;
+        if (gender == null) gender = GenderType.MALE;
     }
 
     @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    protected void onUpdate() { updatedAt = LocalDateTime.now(); }
 }

@@ -1,6 +1,8 @@
 package com.carrom.competition.model;
 
 import com.carrom.competition.enums.CompetitionType;
+import com.carrom.competition.enums.DoublesType;
+import com.carrom.competition.enums.SportType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,10 +29,23 @@ public class Tournament {
     @Column(nullable = false, length = 150)
     private String name;
 
+    @NotNull(message = "Sport type is required")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sport_type", nullable = false)
+    private SportType sportType;
+
     @NotNull(message = "Competition type is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "competition_type", nullable = false)
     private CompetitionType competitionType;
+
+    /**
+     * For Badminton doubles: SAME_GENDER or MIXED.
+     * Null for singles and carrom doubles.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "doubles_type")
+    private DoublesType doublesType;
 
     @Column(name = "current_level")
     private Integer currentLevel = 1;
@@ -43,6 +58,13 @@ public class Tournament {
 
     @Column(name = "is_active")
     private Boolean isActive = true;
+
+    /**
+     * Chess only: JSON map of level→minutes e.g. {"1":10,"2":15,"3":20}
+     * Stored as a simple string; parsed in service layer.
+     */
+    @Column(name = "chess_time_config", columnDefinition = "TEXT")
+    private String chessTimeConfig;
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Fixture> fixtures = new ArrayList<>();
@@ -62,7 +84,5 @@ public class Tournament {
     }
 
     @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    protected void onUpdate() { updatedAt = LocalDateTime.now(); }
 }

@@ -3,54 +3,20 @@
 
 <style>
   .team-card {
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.2rem 1.4rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: .75rem;
-    transition: box-shadow .15s;
+    background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+    padding:1.2rem 1.4rem; display:flex; align-items:center;
+    justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:.75rem;
+    transition:box-shadow .15s;
   }
-  .team-card:hover { box-shadow: var(--shadow); }
-  .team-players {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    font-size: .92rem;
-  }
+  .team-card:hover { box-shadow:var(--shadow); }
   .player-chip {
-    background: var(--ivory);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: .25rem .85rem;
-    font-size: .82rem;
-    font-weight: 600;
-    color: var(--slate);
+    background:var(--ivory); border:1px solid var(--border); border-radius:99px;
+    padding:.22rem .8rem; font-size:.82rem; font-weight:600; color:var(--slate);
   }
-  .amp { color: var(--muted); font-size: .8rem; }
-  .team-stats { display: flex; gap: 1.4rem; }
-  .stat-cell { text-align: center; }
-  .stat-cell .val { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--gold); }
-  .stat-cell .lbl { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
-  .no-players-warn {
-    background: #fff8e1; border: 1px solid #ffe082; border-radius: var(--radius);
-    padding: .9rem 1.2rem; margin-bottom: 1.2rem; font-size: .88rem; color: #7c5c00; display: none;
-  }
-  .player-select-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;
-  }
-  .player-option {
-    border: 2px solid var(--border); border-radius: var(--radius);
-    padding: .7rem 1rem; cursor: pointer; transition: all .15s;
-    display: flex; align-items: center; gap: .6rem;
-  }
-  .player-option:hover { border-color: var(--gold); background: #fffbe6; }
-  .player-option.selected { border-color: var(--gold); background: #fffbe6; }
-  .player-option input[type=radio] { accent-color: var(--gold); }
+  .stat-cell { text-align:center; }
+  .stat-cell .val { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--gold); }
+  .stat-cell .lbl { font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .filter-bar { display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap; margin-bottom:1.2rem; }
 </style>
 
 <div class="page">
@@ -58,75 +24,78 @@
     <div class="section-title">Teams</div>
     <button class="btn btn-primary" onclick="openAddTeam()">+ Create Team</button>
   </div>
+  <p class="text-muted" style="margin-bottom:1rem">Teams are used in Doubles tournaments (Carrom Doubles, Badminton Doubles, Badminton Mixed Doubles). Each team pairs two players.</p>
 
-  <p class="text-muted" style="margin-bottom:1.2rem">
-    Teams are used in Doubles tournaments. Each team is a pair of two players.
-  </p>
+  <!-- Filter by tournament -->
+  <div class="filter-bar">
+    <div class="form-group" style="min-width:260px">
+      <label>Filter by Tournament</label>
+      <select id="sel-tournament" onchange="loadTeams()">
+        <option value="">All Teams (global)</option>
+      </select>
+    </div>
+  </div>
 
-  <div class="no-players-warn" id="noPlayersWarn">
+  <div id="noPlayersWarn" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:var(--radius);padding:.9rem 1.2rem;margin-bottom:1rem;font-size:.88rem;color:#7c5c00">
     ⚠️ You need at least 2 players before creating a team.
     <a href="/players" style="color:var(--rust);font-weight:600">Add players first →</a>
   </div>
 
-  <div id="teamsArea">
-    <div class="empty"><div class="empty-icon">⏳</div><p>Loading…</p></div>
-  </div>
+  <div id="teamsArea"><div class="empty"><div class="empty-icon">⏳</div><p>Loading…</p></div></div>
 </div>
 
 <!-- Add Team Modal -->
 <div class="modal-overlay" id="addTeamModal">
-  <div class="modal" style="max-width:560px">
+  <div class="modal" style="max-width:600px">
     <div class="modal-header">
       <div class="modal-title">Create Team</div>
       <button class="modal-close" onclick="closeModal('addTeamModal')">✕</button>
     </div>
-
+    <div class="form-row">
+      <div class="form-group"><label>Team Name</label><input id="tm-name" type="text" placeholder="e.g. Thunder Duo"/></div>
+    </div>
     <div class="form-row">
       <div class="form-group">
-        <label>Team Name</label>
-        <input id="tm-name" type="text" placeholder="e.g. Thunder Duo"/>
+        <label>Link to Tournament (optional — enforces player uniqueness)</label>
+        <select id="tm-tournament" onchange="onTournamentSelected()">
+          <option value="">— No tournament (global team) —</option>
+        </select>
+      </div>
+    </div>
+    <div id="mixed-warn" style="display:none;background:#e8f4fd;border:1px solid #bee3f8;border-radius:var(--radius);padding:.7rem 1rem;font-size:.83rem;color:#1a4a6e;margin-bottom:.8rem">
+      ℹ️ This is a <strong>Mixed Doubles</strong> tournament — team must have one Male and one Female player.
+    </div>
+    <div id="conflict-warn" style="display:none;background:#fff5f5;border:1px solid #f5c6cb;border-radius:var(--radius);padding:.7rem 1rem;font-size:.83rem;color:#721c24;margin-bottom:.8rem"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <label style="font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.5rem">Player 1</label>
+        <div id="p1-grid" style="display:flex;flex-direction:column;gap:.4rem;max-height:240px;overflow-y:auto;padding-right:.3rem"></div>
+      </div>
+      <div>
+        <label style="font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.5rem">Player 2</label>
+        <div id="p2-grid" style="display:flex;flex-direction:column;gap:.4rem;max-height:240px;overflow-y:auto;padding-right:.3rem"></div>
       </div>
     </div>
 
-    <div style="margin-bottom:.5rem">
-      <label style="font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">
-        Player 1
-      </label>
-    </div>
-    <div id="p1-grid" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem"></div>
-
-    <div style="margin-bottom:.5rem">
-      <label style="font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">
-        Player 2
-      </label>
-    </div>
-    <div id="p2-grid" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem"></div>
-
-    <div id="same-player-warn" style="display:none;color:var(--rust);font-size:.83rem;margin-bottom:.8rem">
-      ⚠️ Player 1 and Player 2 must be different players.
-    </div>
-
-    <div class="flex gap-1" style="justify-content:flex-end">
+    <div class="flex gap-1 mt-2" style="justify-content:flex-end;margin-top:1.2rem">
       <button class="btn btn-secondary" onclick="closeModal('addTeamModal')">Cancel</button>
       <button class="btn btn-primary" onclick="saveTeam()">Create Team</button>
     </div>
   </div>
 </div>
 
-<!-- Edit Team Modal -->
+<!-- Edit Modal -->
 <div class="modal-overlay" id="editTeamModal">
-  <div class="modal" style="max-width:420px">
+  <div class="modal" style="max-width:380px">
     <div class="modal-header">
       <div class="modal-title">Edit Team Name</div>
       <button class="modal-close" onclick="closeModal('editTeamModal')">✕</button>
     </div>
     <input type="hidden" id="et-id"/>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Team Name</label>
-        <input id="et-name" type="text"/>
-      </div>
-    </div>
+    <input type="hidden" id="et-p1id"/>
+    <input type="hidden" id="et-p2id"/>
+    <div class="form-row"><div class="form-group"><label>Team Name</label><input id="et-name" type="text"/></div></div>
     <div class="flex gap-1 mt-2" style="justify-content:flex-end">
       <button class="btn btn-secondary" onclick="closeModal('editTeamModal')">Cancel</button>
       <button class="btn btn-primary" onclick="updateTeam()">Update</button>
@@ -136,176 +105,182 @@
 
 <script>
   let allPlayers = [];
+  let allTournaments = [];
+  let takenPlayerIds = new Set(); // players already in a team for selected tournament
 
-  // ── Load players for use in team creation ─────────────────────────────────────
-  async function loadPlayers() {
-    try {
-      allPlayers = await api('GET', '/api/players');
-      if (allPlayers.length < 2) {
-        document.getElementById('noPlayersWarn').style.display = 'block';
-      }
-    } catch(e) { showToast(e.message, 'error'); }
+  const skillBadge = s => ({'PRO':'<span class="badge badge-pro">PRO</span>','INTERMEDIATE':'<span class="badge badge-intermediate">INT</span>','BEGINNER':'<span class="badge badge-beginner">BEG</span>'})[s]||s;
+  const genderIcon = g => g === 'FEMALE' ? '<span style="color:#c2185b">♀</span>' : '<span style="color:#1565c0">♂</span>';
+  const esc = s => String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+  async function init() {
+    allPlayers = await api('GET','/api/players').catch(()=>[]);
+    allTournaments = await api('GET','/api/tournaments').catch(()=>[]);
+    if (allPlayers.length < 2) document.getElementById('noPlayersWarn').style.display='block';
+
+    // Populate tournament filters
+    const doublesTournaments = allTournaments.filter(t => t.competitionType === 'DOUBLES');
+    const selT = document.getElementById('sel-tournament');
+    const tmT  = document.getElementById('tm-tournament');
+    const opts = doublesTournaments.map(t => '<option value="'+t.id+'" data-doubles-type="'+(t.doublesType||'')+'">'+ t.name+' ('+t.sportType+' '+t.competitionType+')</option>').join('');
+    selT.innerHTML = '<option value="">All Teams (global)</option>' + opts;
+    tmT.innerHTML  = '<option value="">— No tournament (global team) —</option>' + opts;
+
+    await loadTeams();
   }
 
-  // ── Load and render all teams ─────────────────────────────────────────────────
   async function loadTeams() {
+    const tournamentId = document.getElementById('sel-tournament').value;
     try {
-      const teams = await api('GET', '/api/teams');
-      const area  = document.getElementById('teamsArea');
-
-      if (!teams.length) {
-        area.innerHTML = '<div class="empty"><div class="empty-icon">🤝</div>' +
-          '<p>No teams yet. Create the first team for a Doubles tournament.</p></div>';
-        return;
-      }
-
-      area.innerHTML = teams.map(t => {
-        const skillBadge = s => ({
-          PRO: '<span class="badge badge-pro">PRO</span>',
-          INTERMEDIATE: '<span class="badge badge-intermediate">INT</span>',
-          BEGINNER: '<span class="badge badge-beginner">BEG</span>'
-        })[s] || '';
-
-        return '<div class="team-card">' +
-          '<div>' +
-            '<div style="font-weight:700;font-size:1rem;margin-bottom:.4rem">' + t.name + '</div>' +
-            '<div class="team-players">' +
-              '<span class="player-chip">' + t.player1.name + '</span>' +
-              ' ' + skillBadge(t.player1.skillLevel) + ' ' +
-              '<span class="amp">&amp;</span> ' +
-              '<span class="player-chip">' + t.player2.name + '</span>' +
-              ' ' + skillBadge(t.player2.skillLevel) +
-            '</div>' +
-          '</div>' +
-          '<div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">' +
-            '<div class="team-stats">' +
-              '<div class="stat-cell"><div class="val">' + t.totalScore + '</div><div class="lbl">Score</div></div>' +
-              '<div class="stat-cell"><div class="val">' + t.matchesWon + '</div><div class="lbl">Won</div></div>' +
-              '<div class="stat-cell"><div class="val">' + t.matchesPlayed + '</div><div class="lbl">Played</div></div>' +
-            '</div>' +
-            '<div class="flex gap-1">' +
-              '<button class="btn btn-secondary btn-sm" onclick="editTeam(' + t.id + ',\'' + esc(t.name) + '\')">Edit</button>' +
-              '<button class="btn btn-danger btn-sm" onclick="deleteTeam(' + t.id + ')">Delete</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-    } catch(e) { showToast(e.message, 'error'); }
+      const teams = tournamentId
+        ? await api('GET', '/api/teams/tournament/'+tournamentId)
+        : await api('GET', '/api/teams');
+      renderTeams(teams);
+    } catch(e) { showToast(e.message,'error'); }
   }
 
-  // ── Open Add Team modal — populate player selectors ───────────────────────────
-  async function openAddTeam() {
-    if (allPlayers.length < 2) {
-      showToast('Add at least 2 players first', 'error'); return;
+  function renderTeams(teams) {
+    const area = document.getElementById('teamsArea');
+    if (!teams.length) {
+      area.innerHTML='<div class="empty"><div class="empty-icon">🤝</div><p>No teams yet. Create the first team for a Doubles tournament.</p></div>';
+      return;
     }
-    document.getElementById('tm-name').value = '';
-    document.getElementById('same-player-warn').style.display = 'none';
-    renderPlayerPicker('p1-grid', 'p1-sel', null);
-    renderPlayerPicker('p2-grid', 'p2-sel', null);
-    openModal('addTeamModal');
-  }
-
-  function renderPlayerPicker(containerId, radioName, excludeId) {
-    const container = document.getElementById(containerId);
-    const available = allPlayers.filter(p => p.id !== excludeId);
-    container.innerHTML = available.map(p =>
-      '<label style="display:flex;align-items:center;gap:.45rem;background:var(--ivory);' +
-        'border:1.5px solid var(--border);border-radius:var(--radius);padding:.45rem .85rem;' +
-        'cursor:pointer;font-size:.85rem;font-weight:500;transition:border-color .15s" ' +
-        'onmouseover="this.style.borderColor=\'var(--gold)\'" ' +
-        'onmouseout="this.style.borderColor=\'var(--border)\'">' +
-        '<input type="radio" name="' + radioName + '" value="' + p.id + '" ' +
-          'onchange="onPlayerSelect()" style="accent-color:var(--gold)"/> ' +
-        p.name + ' <span class="badge badge-' + p.skillLevel.toLowerCase() + '" style="margin-left:.3rem">' +
-          p.skillLevel.substring(0,3) + '</span>' +
-      '</label>'
+    area.innerHTML = teams.map(t =>
+      '<div class="team-card">' +
+        '<div>' +
+          '<div style="font-weight:700;font-size:1rem;margin-bottom:.4rem">'+t.name+'</div>' +
+          '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">' +
+            '<span class="player-chip">'+genderIcon(t.player1.gender)+' '+t.player1.name+'</span>' +
+            skillBadge(t.player1.skillLevel) +
+            '<span style="color:var(--muted)">&amp;</span>' +
+            '<span class="player-chip">'+genderIcon(t.player2.gender)+' '+t.player2.name+'</span>' +
+            skillBadge(t.player2.skillLevel) +
+          '</div>' +
+          (t.tournamentId ? '<div class="text-muted" style="font-size:.75rem;margin-top:.3rem">Tournament ID #'+t.tournamentId+'</div>' : '') +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap">' +
+          '<div style="display:flex;gap:1.2rem">' +
+            '<div class="stat-cell"><div class="val">'+t.totalScore+'</div><div class="lbl">Score</div></div>' +
+            '<div class="stat-cell"><div class="val">'+t.matchesWon+'</div><div class="lbl">Won</div></div>' +
+            '<div class="stat-cell"><div class="val">'+t.matchesPlayed+'</div><div class="lbl">Played</div></div>' +
+          '</div>' +
+          '<div class="flex gap-1">' +
+            '<button class="btn btn-secondary btn-sm" onclick="editTeam('+t.id+',\''+esc(t.name)+'\','+t.player1.id+','+t.player2.id+')">Edit</button>' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteTeam('+t.id+')">Delete</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
     ).join('');
   }
 
-  function onPlayerSelect() {
-    // When player 1 is selected, refresh player 2 list to exclude that player
-    const p1 = getSelected('p1-sel');
-    const p2 = getSelected('p2-sel');
-    if (p1) renderPlayerPicker('p2-grid', 'p2-sel', parseInt(p1));
-    if (p2) renderPlayerPicker('p1-grid', 'p1-sel', parseInt(p2));
-    // Re-select the previously chosen value if still available
-    if (p1) { const r = document.querySelector('input[name="p1-sel"][value="' + p1 + '"]'); if(r) r.checked = true; }
-    if (p2) { const r = document.querySelector('input[name="p2-sel"][value="' + p2 + '"]'); if(r) r.checked = true; }
-    document.getElementById('same-player-warn').style.display = 'none';
+  async function onTournamentSelected() {
+    const sel = document.getElementById('tm-tournament');
+    const id  = sel.value;
+    const opt = sel.options[sel.selectedIndex];
+    const doublesType = opt.dataset.doublesType || '';
+
+    document.getElementById('mixed-warn').style.display = doublesType==='MIXED' ? 'block' : 'none';
+    document.getElementById('conflict-warn').style.display = 'none';
+
+    takenPlayerIds = new Set();
+    if (id) {
+      const existingTeams = await api('GET','/api/teams/tournament/'+id).catch(()=>[]);
+      existingTeams.forEach(t => { takenPlayerIds.add(t.player1.id); takenPlayerIds.add(t.player2.id); });
+    }
+    renderPlayerPickers(doublesType);
   }
 
-  function getSelected(radioName) {
-    const el = document.querySelector('input[name="' + radioName + '"]:checked');
+  async function openAddTeam() {
+    if (allPlayers.length < 2) { showToast('Add at least 2 players first','error'); return; }
+    document.getElementById('tm-name').value='';
+    document.getElementById('tm-tournament').value='';
+    document.getElementById('mixed-warn').style.display='none';
+    document.getElementById('conflict-warn').style.display='none';
+    takenPlayerIds = new Set();
+    renderPlayerPickers('');
+    openModal('addTeamModal');
+  }
+
+  function renderPlayerPickers(doublesType) {
+    const isMixed = doublesType === 'MIXED';
+    // For mixed: p1 = male, p2 = female
+    const p1Candidates = isMixed
+      ? allPlayers.filter(p => p.gender==='MALE'   && !takenPlayerIds.has(p.id))
+      : allPlayers.filter(p => !takenPlayerIds.has(p.id));
+    const p2Candidates = isMixed
+      ? allPlayers.filter(p => p.gender==='FEMALE' && !takenPlayerIds.has(p.id))
+      : allPlayers.filter(p => !takenPlayerIds.has(p.id));
+
+    renderGrid('p1-grid','p1-sel', p1Candidates);
+    renderGrid('p2-grid','p2-sel', p2Candidates);
+  }
+
+  function renderGrid(containerId, radioName, players) {
+    document.getElementById(containerId).innerHTML = players.length === 0
+      ? '<div class="text-muted" style="font-size:.83rem;padding:.5rem">No eligible players</div>'
+      : players.map(p =>
+          '<label style="display:flex;align-items:center;gap:.45rem;background:var(--ivory);border:1.5px solid var(--border);border-radius:var(--radius);padding:.4rem .8rem;cursor:pointer;font-size:.84rem;font-weight:500" ' +
+          'onmouseover="this.style.borderColor=\'var(--gold)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
+            '<input type="radio" name="'+radioName+'" value="'+p.id+'" style="accent-color:var(--gold)" onchange="onPickerChange()"/> ' +
+            genderIcon(p.gender)+' '+p.name+' '+skillBadge(p.skillLevel) +
+          '</label>'
+        ).join('');
+  }
+
+  function onPickerChange() {
+    const p1 = getSelected('p1-sel'), p2 = getSelected('p2-sel');
+    const warn = document.getElementById('conflict-warn');
+    if (p1 && p2 && p1===p2) {
+      warn.style.display='block'; warn.textContent='⚠️ Both players are the same. Please pick different players.';
+    } else { warn.style.display='none'; }
+  }
+
+  function getSelected(name) {
+    const el = document.querySelector('input[name="'+name+'"]:checked');
     return el ? el.value : null;
   }
 
-  // ── Save new team ─────────────────────────────────────────────────────────────
   async function saveTeam() {
     const name = document.getElementById('tm-name').value.trim();
     const p1Id = getSelected('p1-sel');
     const p2Id = getSelected('p2-sel');
+    const tId  = document.getElementById('tm-tournament').value || null;
 
-    if (!name)  { showToast('Team name is required', 'error'); return; }
-    if (!p1Id)  { showToast('Select Player 1', 'error'); return; }
-    if (!p2Id)  { showToast('Select Player 2', 'error'); return; }
-    if (p1Id === p2Id) {
-      document.getElementById('same-player-warn').style.display = 'block';
-      return;
-    }
+    if (!name)  { showToast('Team name is required','error'); return; }
+    if (!p1Id)  { showToast('Select Player 1','error'); return; }
+    if (!p2Id)  { showToast('Select Player 2','error'); return; }
+    if (p1Id===p2Id) { showToast('Players must be different','error'); return; }
 
     try {
-      await api('POST', '/api/teams', {
-        name,
-        player1Id: parseInt(p1Id),
-        player2Id: parseInt(p2Id)
-      });
-      showToast('Team created!', 'success');
+      await api('POST','/api/teams', { name, player1Id:parseInt(p1Id), player2Id:parseInt(p2Id), tournamentId: tId ? parseInt(tId) : null });
+      showToast('Team created!','success');
       closeModal('addTeamModal');
-      loadTeams();
-    } catch(e) { showToast(e.message, 'error'); }
+      init();
+    } catch(e) { showToast(e.message,'error'); }
   }
 
-  // ── Edit team name ────────────────────────────────────────────────────────────
-  function editTeam(id, name) {
-    document.getElementById('et-id').value  = id;
-    document.getElementById('et-name').value = name;
+  function editTeam(id,name,p1id,p2id) {
+    document.getElementById('et-id').value=id;
+    document.getElementById('et-name').value=name;
+    document.getElementById('et-p1id').value=p1id;
+    document.getElementById('et-p2id').value=p2id;
     openModal('editTeamModal');
   }
 
   async function updateTeam() {
-    const id   = document.getElementById('et-id').value;
-    const name = document.getElementById('et-name').value.trim();
-    if (!name) { showToast('Name required', 'error'); return; }
+    const id=document.getElementById('et-id').value, name=document.getElementById('et-name').value.trim();
+    if (!name) { showToast('Name required','error'); return; }
     try {
-      // Fetch current team to get player IDs (required by API)
-      const team = await api('GET', '/api/teams/' + id);
-      await api('PUT', '/api/teams/' + id, {
-        name,
-        player1Id: team.player1.id,
-        player2Id: team.player2.id
-      });
-      showToast('Team updated!', 'success');
-      closeModal('editTeamModal');
-      loadTeams();
-    } catch(e) { showToast(e.message, 'error'); }
+      await api('PUT','/api/teams/'+id, { name, player1Id:parseInt(document.getElementById('et-p1id').value), player2Id:parseInt(document.getElementById('et-p2id').value) });
+      showToast('Team updated!','success'); closeModal('editTeamModal'); loadTeams();
+    } catch(e) { showToast(e.message,'error'); }
   }
 
-  // ── Delete team ───────────────────────────────────────────────────────────────
   async function deleteTeam(id) {
-    if (!confirm('Delete this team? This cannot be undone.')) return;
-    try {
-      await api('DELETE', '/api/teams/' + id);
-      showToast('Team deleted', 'info');
-      loadTeams();
-    } catch(e) { showToast(e.message, 'error'); }
+    if (!confirm('Delete this team?')) return;
+    try { await api('DELETE','/api/teams/'+id); showToast('Deleted','info'); loadTeams(); }
+    catch(e) { showToast(e.message,'error'); }
   }
 
-  const esc = s => String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-
-  // ── Init ──────────────────────────────────────────────────────────────────────
-  (async function init() {
-    await loadPlayers();
-    await loadTeams();
-  })();
+  init();
 </script>
 </body></html>

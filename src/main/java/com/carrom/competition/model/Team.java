@@ -31,6 +31,14 @@ public class Team {
     @JoinColumn(name = "player2_id", nullable = false)
     private Player player2;
 
+    /**
+     * Tournament this team belongs to.
+     * Enforces per-tournament uniqueness: a player can only be in one team per tournament.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tournament_id")
+    private Tournament tournament;
+
     @Column(name = "total_score")
     private Integer totalScore = 0;
 

@@ -31,7 +31,7 @@ public class Fixture {
     @Column(name = "competition_type", nullable = false)
     private CompetitionType competitionType;
 
-    // ---- SINGLES fields ----
+    // ── SINGLES ──────────────────────────────────────────────────────
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "player1_id")
     private Player player1;
@@ -44,7 +44,7 @@ public class Fixture {
     @JoinColumn(name = "winner_player_id")
     private Player winnerPlayer;
 
-    // ---- DOUBLES fields ----
+    // ── DOUBLES ───────────────────────────────────────────────────────
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team1_id")
     private Team team1;
@@ -57,21 +57,41 @@ public class Fixture {
     @JoinColumn(name = "winner_team_id")
     private Team winnerTeam;
 
-    // ---- Scores ----
+    // ── SCORES ────────────────────────────────────────────────────────
+    /** Carrom: points. Chess: 0/0.5/1. Badminton: games won. */
     @Column(name = "score_participant1")
     private Integer scoreParticipant1 = 0;
 
     @Column(name = "score_participant2")
     private Integer scoreParticipant2 = 0;
 
+    /**
+     * Badminton: full game scores as JSON string, e.g.
+     * [{"g1p1":21,"g1p2":18},{"g2p1":19,"g2p2":21},{"g3p1":21,"g3p2":15}]
+     * Null for chess and carrom.
+     */
+    @Column(name = "game_scores", columnDefinition = "TEXT")
+    private String gameScores;
+
+    /**
+     * Chess only: time limit in minutes for this match (from level config).
+     * Null for other sports.
+     */
+    @Column(name = "chess_time_minutes")
+    private Integer chessTimeMinutes;
+
+    /**
+     * Chess only: result description (CHECKMATE / RESIGNATION / TIMEOUT /
+     * STALEMATE / DRAW_AGREEMENT / INSUFFICIENT_MATERIAL / THREEFOLD_REPETITION /
+     * FIFTY_MOVE_RULE / DRAW_BY_PERPETUAL_CHECK).
+     */
+    @Column(name = "chess_result_type", length = 50)
+    private String chessResultType;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private MatchStatus status = MatchStatus.SCHEDULED;
 
-    /**
-     * True when this fixture is a bye — one participant advances automatically
-     * with no opponent. Only ever created in Level 1 to pad to a power-of-2 bracket.
-     */
     @Column(name = "is_bye", nullable = false)
     private Boolean isBye = false;
 
@@ -101,7 +121,5 @@ public class Fixture {
     }
 
     @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    protected void onUpdate() { updatedAt = LocalDateTime.now(); }
 }

@@ -17,11 +17,12 @@ public class TeamDTO {
     @NotNull(message = "Player 2 ID is required")
     private Long player2Id;
 
+    private Long tournamentId;
+
     private Integer totalScore;
     private Integer matchesPlayed;
     private Integer matchesWon;
 
-    // For response
     private PlayerDTO player1;
     private PlayerDTO player2;
 }
